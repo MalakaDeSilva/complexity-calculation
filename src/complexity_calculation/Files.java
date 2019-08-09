@@ -42,7 +42,7 @@ public class Files {
       return buffR;
    }
 
-   public static int getNumberOfLines() {
+   public static int getLineCount() {
       int count = 0;
 
       if (buffR == null) {
