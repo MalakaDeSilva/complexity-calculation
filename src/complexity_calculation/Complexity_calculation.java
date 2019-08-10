@@ -6,10 +6,7 @@
 package complexity_calculation;
 
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
 
 /**
  *
@@ -22,31 +19,20 @@ public class Complexity_calculation {
      */
     public static void main(String[] args) {
         BufferedReader buffR;
-        String currentLine;
-        String[] words;
-        HashMap<Integer, String> map = new HashMap<>();
-        int iter;
-        
+        ArrayList<String> tempClassList;
+        ArrayList<String> classList;
+
         Files.setFilePath(args[0]);
         buffR = Files.loadFile();
 
-        try {
-            while ((currentLine = buffR.readLine()) != null) {
-                //System.out.println(currentLine);
-                iter = 0;
-                
-                words = currentLine.split(" ");
-                
-                for(String currentWord : words){
-                    //System.out.println(words[0]);
-                    if(currentWord.equalsIgnoreCase("new")){
-                        System.out.println("new "+iter);
-                    }
-                    iter++;
-                }
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(Complexity_calculation.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        tempClassList = Utilities.getClassNames(buffR);
+        
+        Files.unloadFile();
+        
+        classList = Files.removeDuplVals(tempClassList);
+        
+        classList.forEach((name) -> {
+            System.out.println(name);
+        });
     }
 }
