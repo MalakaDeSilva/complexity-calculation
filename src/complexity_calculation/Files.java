@@ -30,7 +30,7 @@ public class Files {
     public static BufferedReader loadFile(){
         File file = new File(filePath);
         BufferedReader buffR = null;
-        
+
         try {
             buffR = new BufferedReader(new FileReader(file));
         } catch (FileNotFoundException ex) {
