@@ -6,7 +6,10 @@
 package complexity_calculation;
 
 import java.io.BufferedReader;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -19,20 +22,37 @@ public class Complexity_calculation {
      */
     public static void main(String[] args) {
         BufferedReader buffR;
-        ArrayList<String> tempClassList;
-        ArrayList<String> classList;
-
+        int builtInComp =0;
+        int userDefComp=0;
+        String currentLine;
+        String[] keywords;
         Files.setFilePath(args[0]);
-        buffR = Files.loadFile();
+        
+        HashMap<String, Integer> builtInClassses = Utilities.getBuiltInClassses();
+        HashMap<String, Integer> userDefinedClasses = Utilities.getUserDefClasses();
 
-        tempClassList = Utilities.getClassNames(buffR);
+        buffR = Files.loadFile();
         
-        Files.unloadFile();
-        
-        classList = Files.removeDuplVals(tempClassList);
-        
-        classList.forEach((name) -> {
-            System.out.println(name);
-        });
+        try {
+            while((currentLine = buffR.readLine()) != null){
+                keywords = currentLine.split("[ <(;]");
+                for(String keyword : keywords){
+                    builtInComp = Utilities.getComplexity(builtInClassses, keyword);
+                    userDefComp = Utilities.getComplexity(userDefinedClasses, keyword);
+                    
+                    if(builtInComp > 0){
+                        System.out.println(currentLine+"\t -> \t"+builtInComp);
+                    }
+
+                    if(userDefComp > 0){
+                        System.out.println(currentLine+"\t -> \t"+userDefComp);
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Complexity_calculation.class.getName()).log(Level.SEVERE, null, ex);
+        } finally{
+            Files.unloadFile();
+        }
     }
 }

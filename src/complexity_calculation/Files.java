@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,8 +41,8 @@ public class Files {
 
         return buffR;
     }
-    
-    public static void unloadFile(){
+
+    public static void unloadFile() {
         try {
             buffR.close();
         } catch (IOException ex) {
@@ -69,16 +68,5 @@ public class Files {
         return count;
     }
 
-    public static <T> ArrayList<T> removeDuplVals(ArrayList<T> list) {
-        ArrayList<T> newList = new ArrayList<>();
-
-        for (T val : list) {
-            if (!newList.contains(val)) {
-
-                newList.add(val);
-            }
-        }
-        
-        return newList;
-    }
+    
 }
