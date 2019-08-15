@@ -5,11 +5,10 @@
  */
 package complexity_calculation;
 
+import constants.Constants;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,125 +17,102 @@ import java.util.logging.Logger;
  * @author blitz
  */
 public class Utilities {
-
-    public static int hierarchy(Class<?> c) {
-        Class[] clss;
-        Class iClass;
-        int count = 0; //No of times inherited
-        ArrayList<Class<?>> list = new ArrayList<>();
-
-        iClass = c; //Preserve to get the Interfaces count
-
-        while (c != null) {
-            count++;
-            list.add(0, c); // add to front
-            c = c.getSuperclass();
-        }
-
-        clss = iClass.getInterfaces();
-        for (int i = 0; clss.length > i; i++) {
-            count++;
-        }
-        return count;
+    
+    private String parentClass;
+    private String childClass;
+    
+    public String getParentClass() {
+        return parentClass;
     }
-
-    public static HashMap<String, Integer> getUserDefClasses() {
-        String currentLine, className;
-        String packageName = null;
-        BufferedReader buffR;
-        String[] words, tempWords;
-        HashMap<String, Integer> map = new HashMap<>();
-        int iter;
-
-        buffR = Files.loadFile();
-
+    
+    public void setParentClass(String parentClass) {
+        this.parentClass = parentClass;
+    }
+    
+    public String getChildClass() {
+        return childClass;
+    }
+    
+    public void setChildClass(String childClass) {
+        this.childClass = childClass;
+    }
+    
+    public void identifyParent() {
+        BufferedReader buffR = Files.loadFile();
+        String currentLine;
+        String[] words;
+        String parent = null;
+        int index;
+        
         try {
             while ((currentLine = buffR.readLine()) != null) {
-                iter = 0;
-                words = currentLine.split(" ");
-
-                for (String currentWord : words) {
-                    if (currentWord.equals("package")) {
-                        tempWords = words[1].split(";");
-                        packageName = tempWords[0];
-                    } else if (currentWord.equalsIgnoreCase("new")) {
-                        tempWords = words[iter + 1].split("[(<]");
-                        if (!keywordExist(getBuiltInClassses(), tempWords[0])) {
-                            System.out.println(packageName + "." + tempWords[0]);
-                            className = packageName + "." + tempWords[0];
-
-                            map.put(className, hierarchy(Class.forName(className)));
+                words = currentLine.split("[ {}]");
+                
+                if (currentLine.contains(Constants.EXTENDS)) {
+                    for (String word : words) {
+                        if (word.equals(Constants.EXTENDS)) {
+                            index = Arrays.asList(words).indexOf(Constants.EXTENDS);
+                            parent = words[index + 1];
                         }
                     }
-
-                    iter++;
+                }
+            }
+        } catch (IOException | ArrayIndexOutOfBoundsException ex) {
+            System.out.println(ex);
+        } finally {
+            Files.unloadFile();
+        }
+        
+        this.setParentClass(parent);
+    }
+    
+    public void identifyChild() {
+        BufferedReader buffR = Files.loadFile();
+        String currentLine;
+        String[] words;
+        String child = null;
+        int index;
+        
+        try {
+            while ((currentLine = buffR.readLine()) != null) {
+                words = currentLine.split("[ {}]");
+                
+                if (currentLine.contains(Constants.EXTENDS)) {
+                    for (String word : words) {
+                        if (word.equals(Constants.CLASS)) {
+                            index = Arrays.asList(words).indexOf(word);
+                            child = words[index + 1];
+                        }
+                    }
                 }
             }
         } catch (IOException ex) {
-            Logger.getLogger(Complexity_calculation.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Utilities.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            Files.unloadFile();
+            System.out.println(ex);
         }
-
-        return map;
+        this.setChildClass(child);
     }
-
-    public static HashMap<String, Integer> getBuiltInClassses() {
-        BufferedReader buffR;
-        String currentLine;
-        String[] words;
-        HashMap<String, Integer> map = new HashMap<>();
-        buffR = Files.loadFile();
-
-        try {
-            while ((currentLine = buffR.readLine()) != null) {
-
-                words = currentLine.split("[ ;]");
-
-                for (String word : words) {
-                    if (words[0].equals("import") && !word.equals("import")) {
-                        map.put(word, hierarchy(Class.forName(word)));
-                    }
-                }
-            }
-        } catch (IOException | ClassNotFoundException ex) {
-            Logger.getLogger(Utilities.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            Files.unloadFile();
-        }
-        //return
-        return map;
-    }
-
-    public static int getComplexity(HashMap<String, Integer> map, String word) {
-        Set<String> set = map.keySet();
-        String[] keywords = set.toArray(new String[set.size()]);
-        String[] classPath;
-
-        for (String str : keywords) {
-            classPath = str.split("\\.");
-            if (word.equals(classPath[classPath.length - 1])) {
-                return map.get(str);
-            }
-        }
-        return 0;
-    }
-
-    private static boolean keywordExist(HashMap<String, Integer> map, String word) {
-        Set<String> set = map.keySet();
-        String[] keywords = set.toArray(new String[set.size()]);
-        String[] classPath;
-
-        for (String str : keywords) {
-            classPath = str.split("\\.");
-
-            if(word.equals(classPath[classPath.length-1])){
-                return true;
+    
+    public String setFilePath(String className) {
+        String currentPath = Files.getFilePath();
+        String words[];
+        String newPath = new String();
+        
+        words = currentPath.split("/");
+        
+        for (String word : words) {
+            if (!word.contains(Constants.JAVA_EXT)) {
+                newPath = newPath.concat(word + "/");
+            } else {
+                identifyParent();
+                newPath = newPath.concat(this.getParentClass() + ".java");
             }
         }
         
-        return false;
+        return newPath;
     }
+    
+    public void getComplexity() {
+        
+    }
+    
 }
