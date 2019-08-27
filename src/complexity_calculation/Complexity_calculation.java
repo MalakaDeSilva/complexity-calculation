@@ -18,7 +18,7 @@ public class Complexity_calculation {
         Files.setFilePath(args[0]);
         Utilities util = new Utilities();
         
-        util.identifyParent();
+        util.identifyParentJava();
         
         System.out.println(util.getParentClass());
     }

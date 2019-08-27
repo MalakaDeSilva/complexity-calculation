@@ -9,6 +9,8 @@ import constants.Constants;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -35,7 +37,7 @@ public class Utilities {
         this.childClass = childClass;
     }
     
-    public void identifyParent() {
+    public void identifyParentJava() {
         BufferedReader buffR = Files.loadFile();
         String currentLine;
         String[] words;
@@ -64,7 +66,7 @@ public class Utilities {
         this.setParentClass(parent);
     }
     
-    public void identifyChild() {
+    public void identifyChildJava() {
         BufferedReader buffR = Files.loadFile();
         String currentLine;
         String[] words;
@@ -86,7 +88,10 @@ public class Utilities {
             }
         } catch (IOException ex) {
             System.out.println(ex);
+        } finally {
+            Files.unloadFile();
         }
+        
         this.setChildClass(child);
     }
     
@@ -101,12 +106,38 @@ public class Utilities {
             if (!word.contains(Constants.JAVA_EXT)) {
                 newPath = newPath.concat(word + "/");
             } else {
-                identifyParent();
-                newPath = newPath.concat(this.getParentClass() + ".java");
+                identifyParentJava();
+                newPath = newPath.concat(this.getParentClass() + Constants.JAVA_EXT);
             }
         }
         
         return newPath;
+    }
+    
+    public void identifyParentCpp() {
+        BufferedReader buffR = Files.loadFile();
+        String currentLine;
+        String[] words;
+        String parent = null;
+        int index;
+        
+        try {
+            while ((currentLine = buffR.readLine()) != null) {
+                words = currentLine.split("[ :{}]");
+                
+                for (String word : words) {
+                    if (word.equalsIgnoreCase(Constants.CLASS)) {
+                        index = Arrays.asList(words).indexOf(word);
+                        parent = words[index + 3];
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Utilities.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            Files.unloadFile();
+        }
+        this.setParentClass(parent);
     }
     
     public void getComplexity() {
